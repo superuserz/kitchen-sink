@@ -8,4 +8,6 @@ public interface MemberService {
 
 	List<Member> getAllMembers();
 
+	Member lookupMemberById(String id);
+
 }

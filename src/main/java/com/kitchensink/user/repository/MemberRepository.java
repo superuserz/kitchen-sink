@@ -10,7 +10,9 @@ import com.kitchensink.user.entity.Member;
 @Repository
 public interface MemberRepository extends MongoRepository<Member, String> {
 
-    Optional<Member> findByEmail(String email);
+	Optional<Member> findByEmail(String email);
 
-    boolean existsByEmail(String email);
+	boolean existsByEmail(String email);
+
+	Optional<Member> findById(long id);
 }

@@ -1,15 +1,22 @@
 package com.kitchensink.user.controller;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.kitchensink.user.entity.Member;
+import com.kitchensink.user.exception.ValidationException;
 import com.kitchensink.user.requests.RegisterMemberRequest;
 import com.kitchensink.user.service.MemberRegistrationService;
 import com.kitchensink.user.service.MemberService;
@@ -43,7 +50,9 @@ public class MemberController {
 			@ApiResponse(responseCode = "400", description = "Invalid input or duplicate email"),
 			@ApiResponse(responseCode = "500", description = "Internal server error") })
 	@PostMapping("/rest/members")
-	public ResponseEntity<String> register(@Valid @RequestBody RegisterMemberRequest request) {
+	public ResponseEntity<String> register(@Valid @RequestBody RegisterMemberRequest request,
+			BindingResult bindingResult) {
+		validateRequest(bindingResult);
 		try {
 			memberRegistrationService.register(request);
 			return ResponseEntity.status(201).body("Member registered successfully");
@@ -51,6 +60,28 @@ public class MemberController {
 			return ResponseEntity.badRequest().body(ex.getMessage());
 		} catch (Exception ex) {
 			return ResponseEntity.internalServerError().body("Unexpected error occurred");
+		}
+	}
+
+	@Operation(summary = "Lookup Member by ID", description = "Retrieve a member by their ID.")
+	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Successfully retrieved member"),
+			@ApiResponse(responseCode = "404", description = "Member not found") })
+	@GetMapping("/members/{id}")
+	public Member lookupMemberById(@PathVariable String id) {
+		Member member = memberService.lookupMemberById(id);
+		if (member == null) {
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Member not found");
+		}
+		return member;
+	}
+
+	private ResponseEntity<?> validateRequest(BindingResult bindingResult) {
+		if (bindingResult.hasErrors()) {
+			Map<String, String> errors = new HashMap<>();
+			bindingResult.getFieldErrors().forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
+			throw new ValidationException(errors);
+		} else {
+			return null;
 		}
 	}
 
