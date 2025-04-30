@@ -7,6 +7,7 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -27,7 +28,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
-@RestController(value = "/kitchensink")
+@RestController
 @Tag(name = "Member Management", description = "Operations related to member registration and retrieval")
 public class MemberController {
 
@@ -50,6 +51,7 @@ public class MemberController {
 			@ApiResponse(responseCode = "400", description = "Invalid input or duplicate email"),
 			@ApiResponse(responseCode = "500", description = "Internal server error") })
 	@PostMapping("/rest/members")
+	@PreAuthorize("hasRole('admin')")
 	public ResponseEntity<String> register(@Valid @RequestBody RegisterMemberRequest request,
 			BindingResult bindingResult) {
 		validateRequest(bindingResult);

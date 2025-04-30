@@ -1,58 +1,38 @@
 package com.kitchensink.user.config;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
-//@EnableWebSecurity
+@EnableWebSecurity
+@EnableMethodSecurity
 public class SecurityConfig {
 
-//	@Bean
-//	SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-//		http.csrf(t -> t.disable());
-//		http.authorizeHttpRequests(authorize -> {
-//			authorize.requestMatchers(HttpMethod.GET, "/kitchensink/rest/members").permitAll()
-//					.requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll().anyRequest().authenticated();
-//		});
-//		http.oauth2ResourceServer(t -> {
-//			t.jwt(Customizer.withDefaults());
-//		});
-//
-//		http.sessionManagement(t -> {
-//			t.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-//		});
-//		return http.build();
-//	}
+	@Autowired
+	JwtAuthConverter jwtAuthConverter;
 
-//	@Bean
-//	SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-//		http.csrf(t -> t.disable());
-//		http.authorizeHttpRequests(authorize -> {
-//			authorize.requestMatchers(HttpMethod.GET, "/kitchensink/rest/members").permitAll()
-//					.requestMatchers("/swagger-ui/**").permitAll().anyRequest().authenticated();
-//		});
-//		http.oauth2ResourceServer(t -> {
-//			t.jwt(Customizer.withDefaults());
-//		});
-//
-//		http.sessionManagement(t -> {
-//			t.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-//		});
-//		return http.build();
-//	}
+	@Bean
+	SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+		http.csrf(t -> t.disable());
+		http.authorizeHttpRequests(authorize -> {
+			authorize.requestMatchers(HttpMethod.GET, "/rest/members").permitAll()
+					.requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll().anyRequest().authenticated();
+		});
 
-//	@Bean
-//	SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-//		http.csrf(t -> t.disable());
-//		http.authorizeHttpRequests(authorize -> {
-//			authorize.anyRequest().authenticated();
-//		});
-//		http.oauth2ResourceServer(t -> {
-//			t.jwt(Customizer.withDefaults());
-//		});
-//
-//		http.sessionManagement(t -> {
-//			t.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-//		});
-//		return http.build();
-//	}
+		http.oauth2ResourceServer(t -> {
+			t.jwt(configurer -> configurer.jwtAuthenticationConverter(jwtAuthConverter));
+		});
+
+		http.sessionManagement(t -> {
+			t.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+		});
+		return http.build();
+	}
 }
