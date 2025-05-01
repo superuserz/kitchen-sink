@@ -85,7 +85,7 @@ public class MemberController {
 		}
 	}
 
-	private ResponseEntity<?> validateRequest(BindingResult bindingResult, RegisterMemberRequest member) {
+	private void validateRequest(BindingResult bindingResult, RegisterMemberRequest member) {
 		Map<String, String> errors = new HashMap<>();
 		if (bindingResult.hasErrors()) {
 			bindingResult.getFieldErrors().forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
@@ -96,7 +96,6 @@ public class MemberController {
 				throw new ValidationException(errors);
 			}
 		}
-		return null;
 	}
 
 }
