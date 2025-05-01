@@ -13,9 +13,6 @@
 	<version>0.0.1-SNAPSHOT</version>
 	<name>kitchen-sink-user</name>
 	<description>Kitchen Sink User Service</description>
-	<properties>
-		<java.version>21</java.version>
-	</properties>
 	<url/>
 	<licenses>
 		<license/>
