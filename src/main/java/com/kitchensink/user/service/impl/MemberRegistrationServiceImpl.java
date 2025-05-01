@@ -25,4 +25,9 @@ public class MemberRegistrationServiceImpl implements MemberRegistrationService 
 		memberRepository.save(member);
 	}
 
+	@Override
+	public boolean isEmailExists(String email) {
+		return memberRepository.existsByEmail(email);
+	}
+
 }

@@ -16,7 +16,7 @@ public class RegisterMemberRequest {
 
 	@NotNull
 	@NotEmpty
-	@Email
+	@Email()
 	private String email;
 
 	@NotNull

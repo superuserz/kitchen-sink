@@ -6,4 +6,6 @@ public interface MemberRegistrationService {
 
 	void register(RegisterMemberRequest request);
 
+	boolean isEmailExists(String email);
+
 }

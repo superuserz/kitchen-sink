@@ -7,7 +7,6 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -44,27 +43,8 @@ public class MemberController {
 	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "List of members retrieved successfully"),
 			@ApiResponse(responseCode = "500", description = "Internal server error") })
 	@GetMapping("/rest/members")
-	public List<Member> getAllMembers() {
-		return memberService.getAllMembers();
-	}
-
-	@Operation(summary = "Register a new member")
-	@ApiResponses(value = { @ApiResponse(responseCode = "201", description = "Member registered successfully"),
-			@ApiResponse(responseCode = "400", description = "Invalid input or duplicate email"),
-			@ApiResponse(responseCode = "500", description = "Internal server error") })
-	@PostMapping("/rest/members")
-	@PreAuthorize("hasRole('admin')")
-	public ResponseEntity<String> register(@Valid @RequestBody RegisterMemberRequest request,
-			BindingResult bindingResult) {
-		validateRequest(bindingResult);
-		try {
-			memberRegistrationService.register(request);
-			return ResponseEntity.status(201).body("Member registered successfully");
-		} catch (IllegalArgumentException ex) {
-			return ResponseEntity.badRequest().body(ex.getMessage());
-		} catch (Exception ex) {
-			return ResponseEntity.internalServerError().body("Unexpected error occurred");
-		}
+	public List<Member> listAllMembers() {
+		return memberService.listAllMembers();
 	}
 
 	@Operation(summary = "Lookup Member by ID", description = "Retrieve a member by their ID.")
@@ -79,14 +59,44 @@ public class MemberController {
 		return member;
 	}
 
-	private ResponseEntity<?> validateRequest(BindingResult bindingResult) {
+	@Operation(summary = "Register a new member")
+	@ApiResponses(value = { @ApiResponse(responseCode = "201", description = "Member registered successfully"),
+			@ApiResponse(responseCode = "400", description = "Invalid input or duplicate email"),
+			@ApiResponse(responseCode = "500", description = "Internal server error") })
+	@PostMapping("/rest/members")
+	// @PreAuthorize("hasRole('admin')")
+	public ResponseEntity<?> createMember(@Valid @RequestBody RegisterMemberRequest member,
+			BindingResult bindingResult) {
+		try {
+
+			validateRequest(bindingResult, member);
+			memberRegistrationService.register(member);
+			return ResponseEntity.ok().build();
+		} catch (ValidationException e) {
+			Map<String, String> response = new HashMap<>();
+			e.getErrors().entrySet().forEach(entry -> {
+				response.put(entry.getKey(), entry.getValue());
+			});
+			return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
+		} catch (Exception e) {
+			Map<String, String> response = new HashMap<>();
+			response.put("error", e.getMessage());
+			return ResponseEntity.badRequest().body(response);
+		}
+	}
+
+	private ResponseEntity<?> validateRequest(BindingResult bindingResult, RegisterMemberRequest member) {
+		Map<String, String> errors = new HashMap<>();
 		if (bindingResult.hasErrors()) {
-			Map<String, String> errors = new HashMap<>();
 			bindingResult.getFieldErrors().forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
 			throw new ValidationException(errors);
 		} else {
-			return null;
+			errors.put("email", "Email Taken");
+			if (memberRegistrationService.isEmailExists(member.getEmail())) {
+				throw new ValidationException(errors);
+			}
 		}
+		return null;
 	}
 
 }

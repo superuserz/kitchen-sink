@@ -6,8 +6,8 @@ import com.kitchensink.user.entity.Member;
 
 public interface MemberService {
 
-	List<Member> getAllMembers();
-
 	Member lookupMemberById(String id);
+
+	List<Member> listAllMembers();
 
 }
