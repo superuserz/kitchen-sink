@@ -1,6 +1,7 @@
 package com.kitchensink.user.controller;
 
 import java.util.Date;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.kitchensink.user.enums.UserRole;
 import com.kitchensink.user.requests.LoginRequest;
 import com.kitchensink.user.service.impl.LoginService;
 
@@ -45,8 +47,8 @@ public class AuthController {
 	public ResponseEntity<String> getAccessToken(@RequestHeader("X-API-KEY") String apiKey) {
 		if (apiKey.equals(configuredApiKey)) {
 			// Generate JWT token
-			String jwtToken = Jwts.builder().setSubject("api-user").setIssuedAt(new Date())
-					.setExpiration(new Date(System.currentTimeMillis() + jwtExpirationMs))
+			String jwtToken = Jwts.builder().setSubject("api-user").claim("roles", List.of("ROLE_" + UserRole.ADMIN))
+					.setIssuedAt(new Date()).setExpiration(new Date(System.currentTimeMillis() + jwtExpirationMs))
 					.signWith(Keys.hmacShaKeyFor(jwtSecret.getBytes()), SignatureAlgorithm.HS256).compact();
 
 			return ResponseEntity.ok(jwtToken);

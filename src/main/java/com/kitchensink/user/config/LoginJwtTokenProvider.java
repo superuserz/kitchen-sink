@@ -18,7 +18,7 @@ public class LoginJwtTokenProvider {
 	@Value("${jwt.secret:c2xrYWRqbGt3cWpkb2xqZGlvd3F4bndxb25jcXdkandxO29qZGxxd2pkcW93aWQ=}")
 	private String jwtSecret;
 
-	@Value("${jwt.expiration:86400000}")
+	@Value("${jwt.expiration:3600000}")
 	private long jwtExpiration;
 
 	public String generateToken(Authentication authentication) {

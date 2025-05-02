@@ -7,6 +7,7 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -43,6 +44,7 @@ public class MemberController {
 	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "List of members retrieved successfully"),
 			@ApiResponse(responseCode = "500", description = "Internal server error") })
 	@GetMapping("/rest/members")
+	@PreAuthorize("hasRole('ADMIN')")
 	public List<Member> listAllMembers() {
 		return memberService.listAllMembers();
 	}
@@ -64,7 +66,7 @@ public class MemberController {
 			@ApiResponse(responseCode = "400", description = "Invalid input or duplicate email"),
 			@ApiResponse(responseCode = "500", description = "Internal server error") })
 	@PostMapping("/rest/members")
-	// @PreAuthorize("hasRole('admin')")
+	@PreAuthorize("hasRole('ADMIN')")
 	public ResponseEntity<?> createMember(@Valid @RequestBody RegisterMemberRequest member,
 			BindingResult bindingResult) {
 		try {

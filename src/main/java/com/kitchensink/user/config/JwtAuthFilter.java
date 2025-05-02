@@ -2,9 +2,12 @@ package com.kitchensink.user.config;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -28,7 +31,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
 
-		if (request.getRequestURI().startsWith("/auth/login") || request.getRequestURI().startsWith("/auth/token")
+		if (request.getRequestURI().startsWith("/auth/login") || request.getRequestURI().startsWith("/api/token")
 				|| request.getRequestURI().startsWith("/swagger-ui")
 				|| request.getRequestURI().startsWith("/v3/api-docs")) {
 			filterChain.doFilter(request, response);
@@ -41,10 +44,15 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 				Claims claims = Jwts.parserBuilder().setSigningKey(Keys.hmacShaKeyFor(jwtSecret.getBytes())).build()
 						.parseClaimsJws(jwt).getBody();
 
+				List<String> roles = claims.get("roles", List.class);
+				List<GrantedAuthority> authorities = roles.stream().map(SimpleGrantedAuthority::new)
+
+						.collect(Collectors.toList());
+
 				String username = claims.getSubject();
 				if (username != null) {
 					UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(username, null,
-							List.of());
+							authorities);
 					SecurityContextHolder.getContext().setAuthentication(auth);
 				}
 
