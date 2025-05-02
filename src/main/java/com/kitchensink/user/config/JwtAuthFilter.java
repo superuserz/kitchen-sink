@@ -27,10 +27,12 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
-		if (request.getRequestURI().equals("/auth/token")) {
 
+		if (request.getRequestURI().startsWith("/auth/login") || request.getRequestURI().startsWith("/auth/token")
+				|| request.getRequestURI().startsWith("/swagger-ui")
+				|| request.getRequestURI().startsWith("/v3/api-docs")) {
 			filterChain.doFilter(request, response);
-
+			return;
 		}
 		String authHeader = request.getHeader("Authorization");
 		if (authHeader != null && authHeader.startsWith("Bearer ")) {

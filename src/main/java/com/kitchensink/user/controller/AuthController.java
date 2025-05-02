@@ -2,11 +2,17 @@ package com.kitchensink.user.controller;
 
 import java.util.Date;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.kitchensink.user.requests.LoginRequest;
+import com.kitchensink.user.service.impl.LoginService;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -14,8 +20,9 @@ import io.jsonwebtoken.security.Keys;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import jakarta.validation.Valid;
 
-@Controller
+@RestController
 public class AuthController {
 
 	@Value("${api.key:bXlhcGlrZXk=}")
@@ -27,11 +34,14 @@ public class AuthController {
 	@Value("${jwt.expiration:3600000}") // 1 hour in milliseconds
 	private long jwtExpirationMs;
 
+	@Autowired
+	private LoginService loginService;
+
 	@Operation(summary = "Generate Authentication Token")
 	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "JWT token generated successfully"),
 			@ApiResponse(responseCode = "401", description = "Invalid API key"),
 			@ApiResponse(responseCode = "500", description = "Internal server error") })
-	@GetMapping("/auth/token")
+	@GetMapping("/api/token")
 	public ResponseEntity<String> getAccessToken(@RequestHeader("X-API-KEY") String apiKey) {
 		if (apiKey.equals(configuredApiKey)) {
 			// Generate JWT token
@@ -43,5 +53,10 @@ public class AuthController {
 		} else {
 			return ResponseEntity.status(401).body("Invalid API key");
 		}
+	}
+
+	@PostMapping("/auth/login")
+	public String login(@RequestBody @Valid LoginRequest request) {
+		return loginService.login(request.getEmail(), request.getPassword());
 	}
 }
