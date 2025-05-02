@@ -1,5 +1,7 @@
 package com.kitchensink.user.requests;
 
+import java.util.List;
+
 import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
@@ -16,7 +18,7 @@ public class RegisterMemberRequest {
 
 	@NotNull
 	@NotEmpty
-	@Email()
+	@Email
 	private String email;
 
 	@NotNull
@@ -24,15 +26,23 @@ public class RegisterMemberRequest {
 	@Digits(fraction = 0, integer = 12)
 	private String phoneNumber;
 
+	@NotNull
+	@Size(min = 6)
+	private String password;
+
+	private List<String> roles;
+
 	public RegisterMemberRequest() {
 		super();
+
 	}
 
-	public RegisterMemberRequest(String name, String email, String phoneNumber) {
+	public RegisterMemberRequest(String name, String email, String phoneNumber, String password, List<String> roles) {
 		super();
 		this.name = name;
 		this.email = email;
 		this.phoneNumber = phoneNumber;
+		this.password = password;
 	}
 
 	public String getName() {
@@ -59,4 +69,19 @@ public class RegisterMemberRequest {
 		this.phoneNumber = phoneNumber;
 	}
 
+	public String getPassword() {
+		return password;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
+	}
+
+	public List<String> getRoles() {
+		return roles;
+	}
+
+	public void setRoles(List<String> roles) {
+		this.roles = roles;
+	}
 }

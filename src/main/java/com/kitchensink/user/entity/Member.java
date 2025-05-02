@@ -1,7 +1,11 @@
 package com.kitchensink.user.entity;
 
+import java.util.List;
+
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+
+import com.kitchensink.user.enums.UserRole;
 
 @Document(collection = "members")
 public class Member {
@@ -10,17 +14,19 @@ public class Member {
 	private String id;
 
 	private String name;
-
 	private String email;
-
 	private String phoneNumber;
+	private String password;
 
-	public String getId() {
-		return id;
-	}
+	private List<UserRole> roles;
 
 	public Member() {
 		super();
+	}
+
+	// Getters and setters
+	public String getId() {
+		return id;
 	}
 
 	public void setId(String id) {
@@ -49,5 +55,21 @@ public class Member {
 
 	public void setPhoneNumber(String phoneNumber) {
 		this.phoneNumber = phoneNumber;
+	}
+
+	public String getPassword() {
+		return password;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
+	}
+
+	public List<UserRole> getRoles() {
+		return roles;
+	}
+
+	public void setRoles(List<UserRole> roles) {
+		this.roles = roles;
 	}
 }
