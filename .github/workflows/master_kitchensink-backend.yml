@@ -30,8 +30,8 @@ jobs:
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:
-          name: kitchen-sink-user
-          path: '${{ github.workspace }}/target/*.jar'
+          name: java-app
+          path: '${{ github.workspace }}/target/kitchen-sink-user-0.0.1-SNAPSHOT.jar'
 
   deploy:
     runs-on: ubuntu-latest
@@ -47,7 +47,7 @@ jobs:
       - name: Download artifact from build job
         uses: actions/download-artifact@v4
         with:
-          name: kitchen-sink-user
+          name: java-app
       
       - name: Login to Azure
         uses: azure/login@v2
@@ -60,7 +60,7 @@ jobs:
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
         with:
-          app-name: 'kitchen-sink-user'
+          app-name: 'kitchensink-backend'
           slot-name: 'Production'
-          package: '*.jar'
+          package: 'java-app/kitchen-sink-user-0.0.1-SNAPSHOT.jar'
           
