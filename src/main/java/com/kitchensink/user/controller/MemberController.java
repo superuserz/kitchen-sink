@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -32,6 +33,7 @@ import jakarta.validation.Valid;
 @RestController
 @Tag(name = "Member Management", description = "Operations related to member registration and retrieval")
 @SecurityRequirement(name = "Keycloak")
+@RequestMapping("/api")
 public class MemberController {
 
 	@Autowired
@@ -43,7 +45,7 @@ public class MemberController {
 	@Operation(summary = "Get all registered members")
 	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "List of members retrieved successfully"),
 			@ApiResponse(responseCode = "500", description = "Internal server error") })
-	@GetMapping("/rest/members")
+	@GetMapping("/members")
 	@PreAuthorize("hasRole('ADMIN')")
 	public List<Member> listAllMembers() {
 		return memberService.listAllMembers();
@@ -65,10 +67,9 @@ public class MemberController {
 	@ApiResponses(value = { @ApiResponse(responseCode = "201", description = "Member registered successfully"),
 			@ApiResponse(responseCode = "400", description = "Invalid input or duplicate email"),
 			@ApiResponse(responseCode = "500", description = "Internal server error") })
-	@PostMapping("/rest/members")
-	@PreAuthorize("hasRole('ADMIN')")
-	public ResponseEntity<?> createMember(@Valid @RequestBody RegisterMemberRequest member,
-			BindingResult bindingResult) {
+	@PostMapping("/register")
+	// @PreAuthorize("hasRole('ADMIN')")
+	public ResponseEntity<?> register(@Valid @RequestBody RegisterMemberRequest member, BindingResult bindingResult) {
 		try {
 
 			validateRequest(bindingResult, member);

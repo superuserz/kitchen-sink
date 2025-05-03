@@ -1,15 +1,19 @@
 package com.kitchensink.user.controller;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.kitchensink.user.enums.UserRole;
@@ -25,6 +29,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 
 @RestController
+@RequestMapping("/api")
 public class AuthController {
 
 	@Value("${api.key:bXlhcGlrZXk=}")
@@ -43,7 +48,7 @@ public class AuthController {
 	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "JWT token generated successfully"),
 			@ApiResponse(responseCode = "401", description = "Invalid API key"),
 			@ApiResponse(responseCode = "500", description = "Internal server error") })
-	@GetMapping("/api/token")
+	@GetMapping("/token")
 	public ResponseEntity<String> getAccessToken(@RequestHeader("X-API-KEY") String apiKey) {
 		if (apiKey.equals(configuredApiKey)) {
 			// Generate JWT token
@@ -57,8 +62,18 @@ public class AuthController {
 		}
 	}
 
-	@PostMapping("/auth/login")
-	public String login(@RequestBody @Valid LoginRequest request) {
-		return loginService.login(request.getEmail(), request.getPassword());
+	@PostMapping("/login")
+	public ResponseEntity<?> login(@RequestBody @Valid LoginRequest request) {
+		try {
+			String jwtToken = loginService.login(request.getEmail(), request.getPassword());
+
+			Map<String, String> response = new HashMap<>();
+			response.put("token", jwtToken);
+
+			return ResponseEntity.ok(response); // 200 OK with JWT
+		} catch (Exception e) {
+			// Custom exception for invalid username/password
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", e.getMessage()));
+		}
 	}
 }
