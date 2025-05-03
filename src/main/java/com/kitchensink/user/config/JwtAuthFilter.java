@@ -31,8 +31,10 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
 
-		if (request.getRequestURI().startsWith("/api/register") || request.getRequestURI().startsWith("/api/login")
-				|| request.getRequestURI().startsWith("/api/token") || request.getRequestURI().startsWith("/swagger-ui")
+		if (request.getRequestURI().startsWith("/actuator/health")
+				|| request.getRequestURI().startsWith("/api/register")
+				|| request.getRequestURI().startsWith("/api/login") || request.getRequestURI().startsWith("/api/token")
+				|| request.getRequestURI().startsWith("/swagger-ui")
 				|| request.getRequestURI().startsWith("/v3/api-docs")) {
 			filterChain.doFilter(request, response);
 			return;
