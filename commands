@@ -1,0 +1,4 @@
+mvn clean package
+docker build --build-arg JAR_FILE=target/kitchen-sink-user-0.0.1-SNAPSHOT.jar -t kitchensink-backend .
+docker tag kitchensink-backend:latest superuserz/kitchensink-backend:latest
+docker push superuserz/kitchensink-backend:latest
