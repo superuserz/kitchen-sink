@@ -1,10 +1,13 @@
 package com.kitchensink.user.entity;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
+import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.kitchensink.user.enums.UserRole;
 
 @Document(collection = "members")
@@ -16,7 +19,10 @@ public class Member {
 	private String name;
 	private String email;
 	private String phoneNumber;
+	@JsonIgnore
 	private String password;
+	@CreatedDate
+	private LocalDateTime registeredOn;
 
 	private List<UserRole> roles;
 
@@ -71,5 +77,13 @@ public class Member {
 
 	public void setRoles(List<UserRole> roles) {
 		this.roles = roles;
+	}
+
+	public LocalDateTime getRegisteredOn() {
+		return registeredOn;
+	}
+
+	public void setRegisteredOn(LocalDateTime registeredOn) {
+		this.registeredOn = registeredOn;
 	}
 }

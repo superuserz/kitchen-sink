@@ -63,6 +63,18 @@ public class MemberController {
 		return member;
 	}
 
+	@Operation(summary = "Fetch User Profile", description = "Fetch User Profile")
+	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Successfully retrieved member"),
+			@ApiResponse(responseCode = "404", description = "Member not found") })
+	@GetMapping("/profile")
+	public Member getProfile() {
+		Member member = memberService.getProfile();
+		if (member == null) {
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Member not found");
+		}
+		return member;
+	}
+
 	@Operation(summary = "Register a new member")
 	@ApiResponses(value = { @ApiResponse(responseCode = "201", description = "Member registered successfully"),
 			@ApiResponse(responseCode = "400", description = "Invalid input or duplicate email"),

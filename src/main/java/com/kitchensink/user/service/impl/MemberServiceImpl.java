@@ -5,6 +5,8 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import com.kitchensink.user.entity.Member;
@@ -34,5 +36,12 @@ public class MemberServiceImpl implements MemberService {
 	@Override
 	public List<Member> listAllMembers() {
 		return memberRepository.findAll(Sort.by(Sort.Direction.ASC, "name"));
+	}
+
+	@Override
+	public Member getProfile() {
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		String email = (String) authentication.getPrincipal();
+		return memberRepository.findByEmail(email).get();
 	}
 }
