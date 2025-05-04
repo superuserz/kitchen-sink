@@ -1,4 +1,4 @@
-The Following Application Demonstrates a Spring Boot + Java 21 Backend
+The Following Application Demonstrates a Angular + Spring Boot + Java 21 Backend
 
 Tech Stack
 1. Spring Boot as Web Framework
