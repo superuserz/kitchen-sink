@@ -1,19 +1,23 @@
 package com.kitchensink.user;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import java.util.Collections;
+import java.util.List;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kitchensink.user.controller.MemberController;
@@ -23,6 +27,7 @@ import com.kitchensink.user.service.MemberRegistrationService;
 import com.kitchensink.user.service.MemberService;
 
 @WebMvcTest(MemberController.class)
+@AutoConfigureMockMvc(addFilters = false) // 🔓 disables Spring Security for test
 class MemberControllerTest {
 
 	@Autowired
@@ -37,70 +42,83 @@ class MemberControllerTest {
 	@Autowired
 	private ObjectMapper objectMapper;
 
+	private Member sampleMember;
+
+	@BeforeEach
+	void setup() {
+		sampleMember = new Member();
+		sampleMember.setName("Test User");
+		sampleMember.setEmail("test@example.com");
+		sampleMember.setPhoneNumber("1234567890");
+	}
+
 	@Test
 	void testListAllMembers() throws Exception {
-		when(memberService.listAllMembers()).thenReturn(Collections.emptyList());
+		List<Member> members = List.of(sampleMember);
+		when(memberService.listAllMembers()).thenReturn(members);
 
-		mockMvc.perform(MockMvcRequestBuilders.get("/rest/members")).andExpect(status().isOk());
+		mockMvc.perform(get("/api/members")).andExpect(status().isOk())
+				.andExpect(jsonPath("$[0].email").value("test@example.com"));
 	}
 
 	@Test
-	void testLookupMemberById_Found() throws Exception {
-		Member mockMember = new Member();
-		mockMember.setId("123");
-		mockMember.setName("Test User");
+	void testLookupMemberById_found() throws Exception {
+		when(memberService.lookupMemberById("123")).thenReturn(sampleMember);
 
-		when(memberService.lookupMemberById("123")).thenReturn(mockMember);
-
-		mockMvc.perform(MockMvcRequestBuilders.get("/members/123")).andExpect(status().isOk());
+		mockMvc.perform(get("/api/members/123")).andExpect(status().isOk())
+				.andExpect(jsonPath("$.name").value("Test User"));
 	}
 
 	@Test
-	void testCreateMember_Success() throws Exception {
+	void testGetProfile_found() throws Exception {
+		when(memberService.getProfile()).thenReturn(sampleMember);
+
+		mockMvc.perform(get("/api/profile")).andExpect(status().isOk())
+				.andExpect(jsonPath("$.email").value("test@example.com"));
+	}
+
+	@Test
+	void testRegister_success() throws Exception {
 		RegisterMemberRequest request = new RegisterMemberRequest();
-		request.setName("John Doe");
-		request.setEmail("john@example.com");
-		request.setPhoneNumber("1234567890");
+		request.setName("Test");
+		request.setEmail("new@example.com");
+		request.setPhoneNumber("1111111111");
+		request.setPassword("securePassword");
 
-		when(memberRegistrationService.isEmailExists(request.getEmail())).thenReturn(false);
+		when(memberRegistrationService.isEmailExists("new@example.com")).thenReturn(false);
 
-		mockMvc.perform(MockMvcRequestBuilders.post("/rest/members").contentType(MediaType.APPLICATION_JSON)
+		mockMvc.perform(post("/api/register").contentType(MediaType.APPLICATION_JSON)
 				.content(objectMapper.writeValueAsString(request))).andExpect(status().isOk());
 	}
 
 	@Test
-	void testCreateMember_EmailExists() throws Exception {
+	void testRegister_duplicateEmail() throws Exception {
 		RegisterMemberRequest request = new RegisterMemberRequest();
-		request.setName("Jane");
-		request.setEmail("jane@example.com");
-		request.setPhoneNumber("9876543210");
+		request.setName("Test");
+		request.setEmail("existing@example.com");
+		request.setPhoneNumber("9999999999");
+		request.setPassword("securePassword");
 
-		when(memberRegistrationService.isEmailExists(request.getEmail())).thenReturn(true);
+		when(memberRegistrationService.isEmailExists("existing@example.com")).thenReturn(true);
 
-		mockMvc.perform(MockMvcRequestBuilders.post("/rest/members").contentType(MediaType.APPLICATION_JSON)
+		mockMvc.perform(post("/api/register").contentType(MediaType.APPLICATION_JSON)
 				.content(objectMapper.writeValueAsString(request))).andExpect(status().isConflict())
 				.andExpect(jsonPath("$.email").value("Email Taken"));
 	}
 
 	@Test
-	public void testCreateMember_ValidationError() throws Exception {
-		RegisterMemberRequest memberRequest = new RegisterMemberRequest();
-		// Invalid member data that should trigger a validation error (e.g., duplicate
-		// email)
-		memberRequest.setEmail("duplicate@example.com");
+	void testRegister_genericException() throws Exception {
+		RegisterMemberRequest request = new RegisterMemberRequest();
+		request.setName("Test");
+		request.setEmail("error@example.com");
+		request.setPhoneNumber("9999999999");
+		request.setPassword("securePassword");
 
-		mockMvc.perform(
-				post("/rest/members").contentType(MediaType.APPLICATION_JSON).content(asJsonString(memberRequest)))
-				.andExpect(status().isConflict());
-	}
+		when(memberRegistrationService.isEmailExists("error@example.com")).thenReturn(false);
+		doThrow(new RuntimeException("Something went wrong")).when(memberRegistrationService).register(any());
 
-	// Utility method to convert an object to a JSON string
-	public static String asJsonString(Object obj) {
-		try {
-			ObjectMapper objectMapper = new ObjectMapper();
-			return objectMapper.writeValueAsString(obj);
-		} catch (Exception e) {
-			throw new RuntimeException("Failed to convert object to JSON string", e);
-		}
+		mockMvc.perform(post("/api/register").contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(request))).andExpect(status().isBadRequest())
+				.andExpect(jsonPath("$.error").value("Something went wrong"));
 	}
 }

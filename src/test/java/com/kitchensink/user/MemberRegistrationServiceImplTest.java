@@ -1,66 +1,88 @@
 package com.kitchensink.user;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.List;
+
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.kitchensink.user.entity.Member;
+import com.kitchensink.user.enums.UserRole;
 import com.kitchensink.user.repository.MemberRepository;
 import com.kitchensink.user.requests.RegisterMemberRequest;
 import com.kitchensink.user.service.impl.MemberRegistrationServiceImpl;
 
-@SpringBootTest(classes = MemberRegistrationServiceImpl.class)
+@SpringBootTest
 class MemberRegistrationServiceImplTest {
 
-	@Autowired
-	private MemberRegistrationServiceImpl memberRegistrationService;
+	@InjectMocks
+	private MemberRegistrationServiceImpl service;
 
-	@MockBean
+	@Mock
 	private MemberRepository memberRepository;
 
+	@Mock
+	private PasswordEncoder passwordEncoder;
+
+	@BeforeEach
+	void setUp() {
+		MockitoAnnotations.openMocks(this);
+	}
+
 	@Test
-	void testRegister_shouldSaveMember() {
+	void testRegister_success() {
 		// Arrange
 		RegisterMemberRequest request = new RegisterMemberRequest();
-		request.setName("Alice");
-		request.setEmail("alice@example.com");
-		request.setPhoneNumber("9876543210");
+		request.setName("John Doe");
+		request.setEmail("john@example.com");
+		request.setPhoneNumber("1234567890");
+		request.setPassword("rawPassword");
+
+		String encodedPassword = "encodedPassword";
+		when(passwordEncoder.encode("rawPassword")).thenReturn(encodedPassword);
 
 		// Act
-		memberRegistrationService.register(request);
+		service.register(request);
 
 		// Assert
-		ArgumentCaptor<Member> captor = ArgumentCaptor.forClass(Member.class);
-		verify(memberRepository, times(1)).save(captor.capture());
+		ArgumentCaptor<Member> memberCaptor = ArgumentCaptor.forClass(Member.class);
+		verify(memberRepository, times(1)).save(memberCaptor.capture());
 
-		Member saved = captor.getValue();
-		assertThat(saved.getName()).isEqualTo("Alice");
-		assertThat(saved.getEmail()).isEqualTo("alice@example.com");
-		assertThat(saved.getPhoneNumber()).isEqualTo("9876543210");
+		Member savedMember = memberCaptor.getValue();
+		assertEquals("John Doe", savedMember.getName());
+		assertEquals("john@example.com", savedMember.getEmail());
+		assertEquals("1234567890", savedMember.getPhoneNumber());
+		assertEquals(encodedPassword, savedMember.getPassword());
+		assertEquals(List.of(UserRole.USER), savedMember.getRoles());
 	}
 
 	@Test
-	void testIsEmailExists_shouldReturnTrue() {
-		when(memberRepository.existsByEmail("test@example.com")).thenReturn(true);
+	void testIsEmailExists_true() {
+		String email = "exists@example.com";
+		when(memberRepository.existsByEmail(email)).thenReturn(true);
 
-		boolean exists = memberRegistrationService.isEmailExists("test@example.com");
-
-		assertThat(exists).isTrue();
+		assertTrue(service.isEmailExists(email));
+		verify(memberRepository).existsByEmail(email);
 	}
 
 	@Test
-	void testIsEmailExists_shouldReturnFalse() {
-		when(memberRepository.existsByEmail("notfound@example.com")).thenReturn(false);
+	void testIsEmailExists_false() {
+		String email = "new@example.com";
+		when(memberRepository.existsByEmail(email)).thenReturn(false);
 
-		boolean exists = memberRegistrationService.isEmailExists("notfound@example.com");
-
-		assertThat(exists).isFalse();
+		assertFalse(service.isEmailExists(email));
+		verify(memberRepository).existsByEmail(email);
 	}
 }

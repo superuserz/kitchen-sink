@@ -26,13 +26,11 @@ import com.kitchensink.user.service.MemberService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
 @RestController
 @Tag(name = "Member Management", description = "Operations related to member registration and retrieval")
-@SecurityRequirement(name = "Keycloak")
 @RequestMapping("/api")
 public class MemberController {
 
@@ -80,7 +78,6 @@ public class MemberController {
 			@ApiResponse(responseCode = "400", description = "Invalid input or duplicate email"),
 			@ApiResponse(responseCode = "500", description = "Internal server error") })
 	@PostMapping("/register")
-	// @PreAuthorize("hasRole('ADMIN')")
 	public ResponseEntity<?> register(@Valid @RequestBody RegisterMemberRequest member, BindingResult bindingResult) {
 		try {
 
