@@ -32,13 +32,13 @@ import jakarta.validation.Valid;
 @RequestMapping("/api")
 public class AuthController {
 
-	@Value("${api.key:bXlhcGlrZXk=}")
+	@Value("${api.key}")
 	private String configuredApiKey;
 
-	@Value("${jwt.secret:c2xrYWRqbGt3cWpkb2xqZGlvd3F4bndxb25jcXdkandxO29qZGxxd2pkcW93aWQ=}")
+	@Value("${jwt.secret}")
 	private String jwtSecret;
 
-	@Value("${jwt.expiration:3600000}") // 1 hour in milliseconds
+	@Value("${jwt.expiration}") // 1 hour in milliseconds
 	private long jwtExpirationMs;
 
 	@Autowired
