@@ -43,7 +43,6 @@ class MemberRegistrationServiceImplTest {
 
 	@Test
 	void testRegister_success() {
-		// Arrange
 		RegisterMemberRequest request = new RegisterMemberRequest();
 		request.setName("John Doe");
 		request.setEmail("john@example.com");
@@ -53,10 +52,8 @@ class MemberRegistrationServiceImplTest {
 		String encodedPassword = "encodedPassword";
 		when(passwordEncoder.encode("rawPassword")).thenReturn(encodedPassword);
 
-		// Act
 		service.register(request);
 
-		// Assert
 		ArgumentCaptor<Member> memberCaptor = ArgumentCaptor.forClass(Member.class);
 		verify(memberRepository, times(1)).save(memberCaptor.capture());
 
