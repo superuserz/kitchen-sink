@@ -51,23 +51,6 @@ public class RegisterMemberRequest {
 	}
 
 	/**
-	 * Instantiates a new register member request.
-	 *
-	 * @param name        the name
-	 * @param email       the email
-	 * @param phoneNumber the phone number
-	 * @param password    the password
-	 * @param roles       the roles
-	 */
-	public RegisterMemberRequest(String name, String email, String phoneNumber, String password, List<String> roles) {
-		super();
-		this.name = name;
-		this.email = email;
-		this.phoneNumber = phoneNumber;
-		this.password = password;
-	}
-
-	/**
 	 * Gets the name.
 	 *
 	 * @return the name

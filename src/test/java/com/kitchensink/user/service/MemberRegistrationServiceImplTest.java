@@ -11,11 +11,12 @@ import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.kitchensink.user.entity.Member;
@@ -24,7 +25,7 @@ import com.kitchensink.user.repository.MemberRepository;
 import com.kitchensink.user.requests.RegisterMemberRequest;
 import com.kitchensink.user.service.impl.MemberRegistrationServiceImpl;
 
-@SpringBootTest
+@ExtendWith(MockitoExtension.class)
 class MemberRegistrationServiceImplTest {
 
 	@InjectMocks
