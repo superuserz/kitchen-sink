@@ -1,11 +1,11 @@
-The Following Application Demonstrates a Angular + Spring Boot + Java 21 Backend
+Techstack - 
 
-Tech Stack
-1. Spring Boot as Web Framework
-2. Java 21 as Runtime
-3. Spring Security For Authentication & Authorization
-4. MongoDB as a NoSQL Database
-5. Azure App Services for Deployment + Github Actions for CI-CD
+Backend - Spring Boot + JDK-21
+Frontent - Angular + Node.js
+Database - MongoDB (NoSQL)
+Deployment - Azure App Services
+CI-CD - Github Actions
+
 
 Build Notes -
   From the Root of Project, run below commands
@@ -23,8 +23,7 @@ Cloud Deployment
 1. The app is connected to Github Actions for CI-CD via Azure App-Service Configuration
 2. https://kitchensink-backend-b9ame2g6bddnaee7.centralindia-01.azurewebsites.net/swagger-ui/index.html
 
-User Interface
-
+Frontend Details
 Git Repo For Angular App - https://github.com/superuserz/kitchen-sink-front
 
 Commands to Running Locally
