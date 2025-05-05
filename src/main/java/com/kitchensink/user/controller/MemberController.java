@@ -103,7 +103,7 @@ public class MemberController {
 		if (deleted) {
 			return ResponseEntity.ok().build();
 		} else {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).build(); // 404 Not Found
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
 		}
 
 	}
@@ -116,7 +116,7 @@ public class MemberController {
 	@Operation(summary = "Fetch User Profile", description = "Fetch User Profile")
 	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Successfully retrieved member"),
 			@ApiResponse(responseCode = "404", description = "Member not found") })
-	@GetMapping("/profile")
+	@GetMapping("/member/me")
 	public Member getProfile() {
 		Member member = memberService.getProfile();
 		if (member == null) {
@@ -136,7 +136,7 @@ public class MemberController {
 	@ApiResponses(value = { @ApiResponse(responseCode = "201", description = "Member registered successfully"),
 			@ApiResponse(responseCode = "400", description = "Invalid input or duplicate email"),
 			@ApiResponse(responseCode = "500", description = "Internal server error") })
-	@PostMapping("/register")
+	@PostMapping("/member/register")
 	public ResponseEntity<?> register(@Valid @RequestBody RegisterMemberRequest member, BindingResult bindingResult) {
 		try {
 
