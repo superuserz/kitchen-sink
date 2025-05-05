@@ -1,11 +1,19 @@
 package com.kitchensink.user.controller;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.poi.ss.usermodel.Workbook;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
@@ -108,6 +116,27 @@ public class MemberController {
 				throw new ValidationException(errors);
 			}
 		}
+	}
+
+	@GetMapping("/members/export")
+	@PreAuthorize("hasRole('ADMIN')")
+	public ResponseEntity<InputStreamResource> exportMembersReport() throws Exception {
+		HttpHeaders headers = new HttpHeaders();
+		headers.add("Content-Disposition", "attachment; filename=members.xlsx");
+		headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+		ByteArrayOutputStream savedReportStream = new ByteArrayOutputStream();
+
+		Workbook workbook = memberService.exportMembersReport();
+
+		try {
+			workbook.write(savedReportStream);
+			workbook.close();
+		} catch (IOException e) {
+			throw new Exception("Error while writing in output stream");
+		}
+		InputStream inputStream = new ByteArrayInputStream(savedReportStream.toByteArray());
+		InputStreamResource reportStream = new InputStreamResource(inputStream);
+		return ResponseEntity.ok().headers(headers).body(reportStream);
 	}
 
 }
