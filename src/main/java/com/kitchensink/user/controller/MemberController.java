@@ -97,6 +97,7 @@ public class MemberController {
 	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Successfully deleted member"),
 			@ApiResponse(responseCode = "404", description = "Member not found") })
 	@DeleteMapping("/members/{id}")
+	@PreAuthorize("hasRole('ADMIN')")
 	public ResponseEntity<Void> deleteMemberById(@PathVariable String id) {
 		boolean deleted = memberService.deleteMemberById(id);
 		if (deleted) {
