@@ -19,7 +19,9 @@ import com.kitchensink.user.repository.MemberRepository;
 @Service
 public class CustomUserDetailsService implements UserDetailsService {
 
-	/** The member repository. */
+	/**
+	 * The member repository.
+	 */
 	@Autowired
 	private MemberRepository memberRepository;
 
