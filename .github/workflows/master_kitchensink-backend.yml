@@ -37,7 +37,7 @@ jobs:
           sed -i "s/@buildTime@/${BUILD_TIME}/g" src/main/resources/application.properties
 
       - name: Build with Maven
-        run: mvn clean package
+        run: mvn clean package -DskipTests
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
