@@ -21,12 +21,29 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+/**
+ * The Class JwtAuthFilter.
+ * 
+ * This class validates that the incoming HTTP requests are validated against a
+ * valid JWT Token. If not rejects the request.
+ * 
+ */
 @Component
 public class JwtAuthFilter extends OncePerRequestFilter {
 
+	/** The jwt secret. */
 	@Value("${jwt.secret}")
 	private String jwtSecret;
 
+	/**
+	 * Do filter internal.
+	 *
+	 * @param request     the request
+	 * @param response    the response
+	 * @param filterChain the filter chain
+	 * @throws ServletException the servlet exception
+	 * @throws IOException      Signals that an I/O exception has occurred.
+	 */
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {

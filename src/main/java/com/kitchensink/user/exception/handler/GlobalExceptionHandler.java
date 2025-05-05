@@ -1,8 +1,12 @@
-package com.kitchensink.user.exception;
+package com.kitchensink.user.exception.handler;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+import com.kitchensink.user.exception.AuthenticationException;
+import com.kitchensink.user.exception.ValidationException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -15,5 +19,10 @@ public class GlobalExceptionHandler {
 	@ExceptionHandler(Exception.class)
 	public ResponseEntity<?> handleGenericException(Exception ex) {
 		return ResponseEntity.internalServerError().body("Unexpected error: " + ex.getMessage());
+	}
+
+	@ExceptionHandler(AuthenticationException.class)
+	public ResponseEntity<String> handleAuthException(AuthenticationException ex) {
+		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ex.getMessage());
 	}
 }

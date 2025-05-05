@@ -1,4 +1,4 @@
-package com.kitchensink.user;
+package com.kitchensink.user.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;

@@ -4,6 +4,8 @@ import com.kitchensink.user.requests.RegisterMemberRequest;
 
 /**
  * The Interface MemberRegistrationService.
+ * 
+ * @author manmeetdevgun
  */
 public interface MemberRegistrationService {
 

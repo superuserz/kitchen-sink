@@ -1,4 +1,4 @@
-package com.kitchensink.user;
+package com.kitchensink.user.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -17,13 +17,13 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 
 import com.kitchensink.user.config.LoginJwtTokenProvider;
-import com.kitchensink.user.service.impl.LoginService;
+import com.kitchensink.user.service.impl.LoginServiceImpl;
 
 @ExtendWith(org.mockito.junit.jupiter.MockitoExtension.class)
 class LoginServiceTest {
 
 	@InjectMocks
-	private LoginService loginService;
+	private LoginServiceImpl loginService;
 
 	@Mock
 	private AuthenticationManager authenticationManager;

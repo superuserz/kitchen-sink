@@ -12,15 +12,25 @@ import com.kitchensink.user.repository.MemberRepository;
 import com.kitchensink.user.requests.RegisterMemberRequest;
 import com.kitchensink.user.service.MemberRegistrationService;
 
+/**
+ * The Class MemberRegistrationServiceImpl.
+ */
 @Service
 public class MemberRegistrationServiceImpl implements MemberRegistrationService {
 
+	/** The member repository. */
 	@Autowired
 	MemberRepository memberRepository;
 
+	/** The password encoder. */
 	@Autowired
 	private PasswordEncoder passwordEncoder;
 
+	/**
+	 * Register.
+	 *
+	 * @param request the request
+	 */
 	@Override
 	public void register(RegisterMemberRequest request) {
 
@@ -39,6 +49,12 @@ public class MemberRegistrationServiceImpl implements MemberRegistrationService 
 		memberRepository.save(member);
 	}
 
+	/**
+	 * Checks if is email exists.
+	 *
+	 * @param email the email
+	 * @return true, if is email exists
+	 */
 	@Override
 	public boolean isEmailExists(String email) {
 		return memberRepository.existsByEmail(email);

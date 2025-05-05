@@ -5,6 +5,7 @@ import java.time.Duration;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -14,11 +15,41 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+/**
+ * @author manmeetdevgun
+ * 
+ *         The Class RateLimitingFilter.
+ * 
+ *         This class is intended to limit the incoming requests to the login
+ *         service. to prevent DDOs attacks.
+ */
 @Component
 public class RateLimitingFilter extends OncePerRequestFilter {
 
+	/** The capacity. */
+	@Value("${rate.limit.capacity}")
+	private long capacity;
+
+	/** The refill limit. */
+	@Value("${rate.limit.refill}")
+	private long refillLimit;
+
+	/** The refill duration. */
+	@Value("${rate.limit.duration}")
+	private long refillDuration;
+
+	/** The buckets. */
 	private final Map<String, Bucket> buckets = new ConcurrentHashMap<String, Bucket>();
 
+	/**
+	 * Do filter internal.
+	 *
+	 * @param request     the request
+	 * @param response    the response
+	 * @param filterChain the filter chain
+	 * @throws ServletException the servlet exception
+	 * @throws IOException      Signals that an I/O exception has occurred.
+	 */
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
@@ -38,9 +69,16 @@ public class RateLimitingFilter extends OncePerRequestFilter {
 		}
 	}
 
-	// 5 attempts per minute
+	/**
+	 * New bucket.
+	 *
+	 * @param key the key
+	 * @return the bucket
+	 */
 	private Bucket newBucket(String key) {
-		return Bucket.builder().addLimit(limit -> limit.capacity(5).refillIntervally(5, Duration.ofMinutes(1))).build();
+		return Bucket.builder().addLimit(
+				limit -> limit.capacity(capacity).refillIntervally(refillLimit, Duration.ofMinutes(refillDuration)))
+				.build();
 	}
 
 }

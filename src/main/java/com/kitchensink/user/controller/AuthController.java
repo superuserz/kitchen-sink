@@ -1,13 +1,12 @@
 package com.kitchensink.user.controller;
 
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -17,8 +16,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.kitchensink.user.enums.UserRole;
+import com.kitchensink.user.exception.AuthenticationException;
 import com.kitchensink.user.requests.LoginRequest;
-import com.kitchensink.user.service.impl.LoginService;
+import com.kitchensink.user.requests.LoginResponse;
+import com.kitchensink.user.service.LoginService;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -54,6 +55,9 @@ public class AuthController {
 	@Autowired
 	private LoginService loginService;
 
+	/** The Constant LOGGER. */
+	private static final Logger LOGGER = LoggerFactory.getLogger(AuthController.class);
+
 	/**
 	 * Gets the access token.
 	 *
@@ -65,16 +69,16 @@ public class AuthController {
 			@ApiResponse(responseCode = "401", description = "Invalid API key"),
 			@ApiResponse(responseCode = "500", description = "Internal server error") })
 	@GetMapping("/token")
-	public ResponseEntity<String> getAccessToken(@RequestHeader("X-API-KEY") String apiKey) {
+	public ResponseEntity<?> getAccessToken(@RequestHeader("X-API-KEY") String apiKey) {
 		if (apiKey.equals(configuredApiKey)) {
 			// Generate JWT token
 			String jwtToken = Jwts.builder().setSubject("api-user").claim("roles", List.of("ROLE_" + UserRole.ADMIN))
 					.setIssuedAt(new Date()).setExpiration(new Date(System.currentTimeMillis() + jwtExpirationMs))
 					.signWith(Keys.hmacShaKeyFor(jwtSecret.getBytes()), SignatureAlgorithm.HS256).compact();
 
-			return ResponseEntity.ok(jwtToken);
+			return ResponseEntity.ok(new LoginResponse(jwtToken));
 		} else {
-			return ResponseEntity.status(401).body("Invalid API key");
+			throw new AuthenticationException("Invalid API Key");
 		}
 	}
 
@@ -89,13 +93,10 @@ public class AuthController {
 		try {
 			String jwtToken = loginService.login(request.getEmail(), request.getPassword());
 
-			Map<String, String> response = new HashMap<>();
-			response.put("token", jwtToken);
-
-			return ResponseEntity.ok(response); // 200 OK with JWT
-		} catch (Exception e) {
-			// Custom exception for invalid username/password
-			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", e.getMessage()));
+			return ResponseEntity.ok(new LoginResponse(jwtToken));
+		} catch (AuthenticationException e) {
+			LOGGER.error("Authentication Failure", e.getMessage());
+			throw e;
 		}
 	}
 }

@@ -20,17 +20,29 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+/**
+ * The Class SecurityConfig.
+ */
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
 public class SecurityConfig {
 
+	/** The jwt auth filter. */
 	@Autowired
 	JwtAuthFilter jwtAuthFilter;
 
+	/** The allowed origins. */
 	@Value("${app.cors.allowed-origins}")
 	private String allowedOrigins;
 
+	/**
+	 * Filter chain.
+	 *
+	 * @param http the http
+	 * @return the security filter chain
+	 * @throws Exception the exception
+	 */
 	@Bean
 	SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 		http.csrf(csrf -> csrf.disable()).cors(cors -> cors.configurationSource(corsConfigurationSource()))
@@ -45,6 +57,11 @@ public class SecurityConfig {
 		return http.build();
 	}
 
+	/**
+	 * Cors configuration source.
+	 *
+	 * @return the cors configuration source
+	 */
 	@Bean
 	CorsConfigurationSource corsConfigurationSource() {
 		CorsConfiguration config = new CorsConfiguration();
@@ -60,11 +77,23 @@ public class SecurityConfig {
 		return source;
 	}
 
+	/**
+	 * Password encoder.
+	 *
+	 * @return the password encoder
+	 */
 	@Bean
 	PasswordEncoder passwordEncoder() {
 		return new BCryptPasswordEncoder();
 	}
 
+	/**
+	 * Authentication manager.
+	 *
+	 * @param authConfig the auth config
+	 * @return the authentication manager
+	 * @throws Exception the exception
+	 */
 	@Bean
 	AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
 		return authConfig.getAuthenticationManager();

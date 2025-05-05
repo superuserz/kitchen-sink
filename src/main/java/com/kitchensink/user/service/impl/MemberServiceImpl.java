@@ -26,19 +26,35 @@ import com.kitchensink.user.repository.MemberRepository;
 import com.kitchensink.user.service.MemberService;
 import com.kitchensink.user.utils.WorkbookUtils;
 
+/**
+ * The Class MemberServiceImpl.
+ */
 @Service
 public class MemberServiceImpl implements MemberService {
 
+	/** The member repository. */
 	@Autowired
 	private MemberRepository memberRepository;
 
+	/**
+	 * Instantiates a new member service impl.
+	 *
+	 * @param memberRepository the member repository
+	 */
 	public MemberServiceImpl(MemberRepository memberRepository) {
 		this.memberRepository = memberRepository;
 	}
 
+	/** The formatter. */
 	// Define the formatter
 	DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yy HH:mm:ss");
 
+	/**
+	 * Lookup member by id.
+	 *
+	 * @param id the id
+	 * @return the member
+	 */
 	@Override
 	public Member lookupMemberById(String id) {
 		Optional<Member> member = memberRepository.findById(id);
@@ -49,11 +65,21 @@ public class MemberServiceImpl implements MemberService {
 		}
 	}
 
+	/**
+	 * List all members.
+	 *
+	 * @return the list
+	 */
 	@Override
 	public List<Member> listAllMembers() {
 		return memberRepository.findAll(Sort.by(Sort.Direction.ASC, "name"));
 	}
 
+	/**
+	 * Gets the profile.
+	 *
+	 * @return the profile
+	 */
 	@Override
 	public Member getProfile() {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -61,6 +87,11 @@ public class MemberServiceImpl implements MemberService {
 		return memberRepository.findByEmail(email).get();
 	}
 
+	/**
+	 * Export members report.
+	 *
+	 * @return the workbook
+	 */
 	@Override
 	public Workbook exportMembersReport() {
 
@@ -73,6 +104,14 @@ public class MemberServiceImpl implements MemberService {
 		return reportWorkbook;
 	}
 
+	/**
+	 * Populate member details.
+	 *
+	 * @param reportWorkbook the report workbook
+	 * @param rowNumber      the row number
+	 * @param sheet          the sheet
+	 * @param members        the members
+	 */
 	private void populateMemberDetails(Workbook reportWorkbook, int rowNumber, Sheet sheet, List<Member> members) {
 		CellStyle centerAlignedStyle = reportWorkbook.createCellStyle();
 		centerAlignedStyle.setAlignment(HorizontalAlignment.CENTER);
@@ -124,6 +163,12 @@ public class MemberServiceImpl implements MemberService {
 
 	}
 
+	/**
+	 * Delete member by id.
+	 *
+	 * @param id the id
+	 * @return true, if successful
+	 */
 	@Override
 	public boolean deleteMemberById(String id) {
 		Optional<Member> member = memberRepository.findById(id);

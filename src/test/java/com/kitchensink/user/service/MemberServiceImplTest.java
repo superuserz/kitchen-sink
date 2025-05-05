@@ -1,4 +1,4 @@
-package com.kitchensink.user;
+package com.kitchensink.user.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;

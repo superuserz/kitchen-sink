@@ -12,16 +12,30 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 
 import jakarta.servlet.http.HttpServletRequest;
 
+/**
+ * The Class ControllerLoggingAspect.
+ */
 @Aspect
 @Component
 public class ControllerLoggingAspect {
 
+	/** The Constant logger. */
 	private static final Logger logger = LoggerFactory.getLogger(ControllerLoggingAspect.class);
 
+	/**
+	 * Controller methods.
+	 */
 	@Pointcut("within(@org.springframework.web.bind.annotation.RestController *)")
 	public void controllerMethods() {
 	}
 
+	/**
+	 * Log around.
+	 *
+	 * @param joinPoint the join point
+	 * @return the object
+	 * @throws Throwable the throwable
+	 */
 	@Around("controllerMethods()")
 	public Object logAround(ProceedingJoinPoint joinPoint) throws Throwable {
 		HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes())

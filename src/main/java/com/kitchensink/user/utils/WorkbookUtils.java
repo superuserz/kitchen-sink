@@ -9,17 +9,15 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.VerticalAlignment;
 import org.apache.poi.ss.usermodel.Workbook;
 
+/**
+ * @author manmeetdevgun
+ * 
+ *         The Class WorkbookUtils.
+ */
 public class WorkbookUtils {
+
 	/**
 	 * Sets the row.
-	 *
-	 * @param row         the row
-	 * @param workbook    the workbook
-	 * @param firstColumn the first column
-	 * @param vars        the vars
-	 * @param bold        the bold
-	 * @param indexColor  the index color
-	 * @param fontColor   the font color
 	 */
 
 	private WorkbookUtils() {
