@@ -28,22 +28,38 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 
+/**
+ * The Class AuthController.
+ * 
+ * @author manmeetdevgun
+ * 
+ */
 @RestController
 @RequestMapping("/api")
 public class AuthController {
 
+	/** The configured api key. */
 	@Value("${api.key}")
 	private String configuredApiKey;
 
+	/** The jwt secret. */
 	@Value("${jwt.secret}")
 	private String jwtSecret;
 
+	/** The jwt expiration ms. */
 	@Value("${jwt.expiration}") // 1 hour in milliseconds
 	private long jwtExpirationMs;
 
+	/** The login service. */
 	@Autowired
 	private LoginService loginService;
 
+	/**
+	 * Gets the access token.
+	 *
+	 * @param apiKey the api key
+	 * @return the access token
+	 */
 	@Operation(summary = "Generate Authentication Token")
 	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "JWT token generated successfully"),
 			@ApiResponse(responseCode = "401", description = "Invalid API key"),
@@ -62,6 +78,12 @@ public class AuthController {
 		}
 	}
 
+	/**
+	 * Login.
+	 *
+	 * @param request the request
+	 * @return the response entity
+	 */
 	@PostMapping("/login")
 	public ResponseEntity<?> login(@RequestBody @Valid LoginRequest request) {
 		try {

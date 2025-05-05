@@ -37,17 +37,29 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
+/**
+ * The Class MemberController.
+ * 
+ * @author manmeetdevgun
+ */
 @RestController
 @Tag(name = "Member Management", description = "Operations related to member registration and retrieval")
 @RequestMapping("/api")
 public class MemberController {
 
+	/** The member service. */
 	@Autowired
 	MemberService memberService;
 
+	/** The member registration service. */
 	@Autowired
 	MemberRegistrationService memberRegistrationService;
 
+	/**
+	 * List all members.
+	 *
+	 * @return the list
+	 */
 	@Operation(summary = "Get all registered members")
 	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "List of members retrieved successfully"),
 			@ApiResponse(responseCode = "500", description = "Internal server error") })
@@ -57,6 +69,12 @@ public class MemberController {
 		return memberService.listAllMembers();
 	}
 
+	/**
+	 * Lookup member by id.
+	 *
+	 * @param id the id
+	 * @return the member
+	 */
 	@Operation(summary = "Lookup Member by ID", description = "Retrieve a member by their ID.")
 	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Successfully retrieved member"),
 			@ApiResponse(responseCode = "404", description = "Member not found") })
@@ -69,6 +87,11 @@ public class MemberController {
 		return member;
 	}
 
+	/**
+	 * Gets the profile.
+	 *
+	 * @return the profile
+	 */
 	@Operation(summary = "Fetch User Profile", description = "Fetch User Profile")
 	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Successfully retrieved member"),
 			@ApiResponse(responseCode = "404", description = "Member not found") })
@@ -81,6 +104,13 @@ public class MemberController {
 		return member;
 	}
 
+	/**
+	 * Register.
+	 *
+	 * @param member        the member
+	 * @param bindingResult the binding result
+	 * @return the response entity
+	 */
 	@Operation(summary = "Register a new member")
 	@ApiResponses(value = { @ApiResponse(responseCode = "201", description = "Member registered successfully"),
 			@ApiResponse(responseCode = "400", description = "Invalid input or duplicate email"),
@@ -105,6 +135,12 @@ public class MemberController {
 		}
 	}
 
+	/**
+	 * Validate request.
+	 *
+	 * @param bindingResult the binding result
+	 * @param member        the member
+	 */
 	private void validateRequest(BindingResult bindingResult, RegisterMemberRequest member) {
 		Map<String, String> errors = new HashMap<>();
 		if (bindingResult.hasErrors()) {
@@ -118,6 +154,12 @@ public class MemberController {
 		}
 	}
 
+	/**
+	 * Export members report.
+	 *
+	 * @return the response entity
+	 * @throws Exception the exception
+	 */
 	@GetMapping("/members/export")
 	@PreAuthorize("hasRole('ADMIN')")
 	public ResponseEntity<InputStreamResource> exportMembersReport() throws Exception {
