@@ -24,8 +24,20 @@ jobs:
           java-version: '21'
           distribution: 'microsoft'
 
+      - name: Set Version Info
+        run: |
+          echo "VERSION=1.0.${{ github.run_number }}" >> $GITHUB_ENV
+          echo "COMMIT_HASH=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
+          echo "BUILD_TIME=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" >> $GITHUB_ENV
+
+      - name: Replace placeholders in application.properties
+        run: |
+          sed -i "s/@version@/${VERSION}/g" src/main/resources/application.properties
+          sed -i "s/@commitHash@/${COMMIT_HASH}/g" src/main/resources/application.properties
+          sed -i "s/@buildTime@/${BUILD_TIME}/g" src/main/resources/application.properties
+
       - name: Build with Maven
-        run: mvn clean package -DskipTests
+        run: mvn clean package
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
