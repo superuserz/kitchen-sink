@@ -14,8 +14,17 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.VerticalAlignment;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -23,6 +32,7 @@ import org.springframework.stereotype.Service;
 import com.kitchensink.user.entity.Member;
 import com.kitchensink.user.enums.UserRole;
 import com.kitchensink.user.repository.MemberRepository;
+import com.kitchensink.user.requests.MemberCriteriaRequest;
 import com.kitchensink.user.service.MemberService;
 import com.kitchensink.user.utils.WorkbookUtils;
 
@@ -35,6 +45,11 @@ public class MemberServiceImpl implements MemberService {
 	/** The member repository. */
 	@Autowired
 	private MemberRepository memberRepository;
+
+	@Autowired
+	private MongoTemplate mongoTemplate;
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(MemberServiceImpl.class);
 
 	/**
 	 * Instantiates a new member service impl.
@@ -177,5 +192,34 @@ public class MemberServiceImpl implements MemberService {
 			return true;
 		}
 		return false;
+	}
+
+	@Override
+	public Page<Member> searchMembers(MemberCriteriaRequest criteria) {
+
+		LOGGER.info("Criteria Request Received - {}", criteria.toString());
+
+		Pageable pageable = PageRequest.of(criteria.getPage(), criteria.getSize(),
+				criteria.getDirection().equalsIgnoreCase("asc") ? Sort.by(criteria.getSortBy()).ascending()
+						: Sort.by(criteria.getSortBy()).descending());
+
+		Query query = new Query().with(pageable);
+
+		if (criteria.getName() != null && !criteria.getName().isEmpty()) {
+			query.addCriteria(Criteria.where("name").regex(criteria.getName(), "i")); // case-insensitive
+		}
+
+		if (criteria.getEmail() != null && !criteria.getEmail().isEmpty()) {
+			query.addCriteria(Criteria.where("email").regex(criteria.getEmail(), "i"));
+		}
+
+		if (criteria.getRole() != null && !criteria.getRole().isEmpty()) {
+			query.addCriteria(Criteria.where("roles").in(criteria.getRole()));
+		}
+
+		List<Member> members = mongoTemplate.find(query, Member.class);
+		long count = mongoTemplate.count(Query.of(query).limit(-1).skip(-1), Member.class);
+
+		return new PageImpl<>(members, pageable, count);
 	}
 }

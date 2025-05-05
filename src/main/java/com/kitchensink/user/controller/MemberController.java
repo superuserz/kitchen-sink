@@ -11,6 +11,7 @@ import java.util.Map;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -28,6 +29,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.kitchensink.user.entity.Member;
 import com.kitchensink.user.exception.ValidationException;
+import com.kitchensink.user.requests.MemberCriteriaRequest;
 import com.kitchensink.user.requests.RegisterMemberRequest;
 import com.kitchensink.user.service.MemberRegistrationService;
 import com.kitchensink.user.service.MemberService;
@@ -92,6 +94,7 @@ public class MemberController {
 	 * Delete member by ID.
 	 *
 	 * @param id the id of the member to delete
+	 * @return the response entity
 	 */
 	@Operation(summary = "Delete Member by ID", description = "Delete a member using their ID.")
 	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Successfully deleted member"),
@@ -202,4 +205,18 @@ public class MemberController {
 		return ResponseEntity.ok().headers(headers).body(reportStream);
 	}
 
+	/**
+	 * List members by criteria.
+	 *
+	 * @param criteria the criteria
+	 * @return the page
+	 */
+
+	@Operation(summary = "Search members with filters, pagination and sorting")
+	@ApiResponse(responseCode = "200", description = "Successful search")
+	@PostMapping("/members/search")
+	@PreAuthorize("hasRole('ADMIN')")
+	public Page<Member> listMembersByCriteria(@RequestBody MemberCriteriaRequest criteria) {
+		return memberService.searchMembers(criteria);
+	}
 }

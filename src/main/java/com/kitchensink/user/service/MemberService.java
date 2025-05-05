@@ -3,8 +3,10 @@ package com.kitchensink.user.service;
 import java.util.List;
 
 import org.apache.poi.ss.usermodel.Workbook;
+import org.springframework.data.domain.Page;
 
 import com.kitchensink.user.entity.Member;
+import com.kitchensink.user.requests.MemberCriteriaRequest;
 
 /**
  * The Interface MemberService.
@@ -47,5 +49,13 @@ public interface MemberService {
 	 * @return true, if successful
 	 */
 	boolean deleteMemberById(String id);
+
+	/**
+	 * Search members.
+	 *
+	 * @param criteria the criteria
+	 * @return the page
+	 */
+	Page<Member> searchMembers(MemberCriteriaRequest criteria);
 
 }
