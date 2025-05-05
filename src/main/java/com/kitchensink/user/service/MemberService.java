@@ -40,4 +40,12 @@ public interface MemberService {
 	 */
 	Workbook exportMembersReport();
 
+	/**
+	 * Delete member by id.
+	 *
+	 * @param id the id
+	 * @return true, if successful
+	 */
+	boolean deleteMemberById(String id);
+
 }

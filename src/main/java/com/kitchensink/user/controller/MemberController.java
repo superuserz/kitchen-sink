@@ -17,6 +17,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -85,6 +86,25 @@ public class MemberController {
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Member not found");
 		}
 		return member;
+	}
+
+	/**
+	 * Delete member by ID.
+	 *
+	 * @param id the id of the member to delete
+	 */
+	@Operation(summary = "Delete Member by ID", description = "Delete a member using their ID.")
+	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Successfully deleted member"),
+			@ApiResponse(responseCode = "404", description = "Member not found") })
+	@DeleteMapping("/members/{id}")
+	public ResponseEntity<Void> deleteMemberById(@PathVariable String id) {
+		boolean deleted = memberService.deleteMemberById(id);
+		if (deleted) {
+			return ResponseEntity.ok().build();
+		} else {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).build(); // 404 Not Found
+		}
+
 	}
 
 	/**

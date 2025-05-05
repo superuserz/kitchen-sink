@@ -123,4 +123,14 @@ public class MemberServiceImpl implements MemberService {
 		}
 
 	}
+
+	@Override
+	public boolean deleteMemberById(String id) {
+		Optional<Member> member = memberRepository.findById(id);
+		if (member.isPresent()) {
+			memberRepository.deleteById(id);
+			return true;
+		}
+		return false;
+	}
 }
