@@ -8,6 +8,7 @@ import org.springframework.data.domain.Page;
 import com.kitchensink.user.entity.Member;
 import com.kitchensink.user.requests.MemberCriteriaRequest;
 
+// TODO: Auto-generated Javadoc
 /**
  * The Interface MemberService.
  */
@@ -57,5 +58,13 @@ public interface MemberService {
 	 * @return the page
 	 */
 	Page<Member> searchMembers(MemberCriteriaRequest criteria);
+
+	/**
+	 * Promote to admin.
+	 *
+	 * @param id the id
+	 * @return the member
+	 */
+	Member promoteToAdmin(String id);
 
 }

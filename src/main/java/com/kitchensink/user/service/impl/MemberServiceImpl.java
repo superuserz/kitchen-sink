@@ -32,11 +32,13 @@ import org.springframework.stereotype.Service;
 import com.kitchensink.user.entity.Member;
 import com.kitchensink.user.enums.UserRole;
 import com.kitchensink.user.exception.AuthenticationException;
+import com.kitchensink.user.exception.UserNotFoundException;
 import com.kitchensink.user.repository.MemberRepository;
 import com.kitchensink.user.requests.MemberCriteriaRequest;
 import com.kitchensink.user.service.MemberService;
 import com.kitchensink.user.utils.WorkbookUtils;
 
+// TODO: Auto-generated Javadoc
 /**
  * The Class MemberServiceImpl.
  */
@@ -47,9 +49,11 @@ public class MemberServiceImpl implements MemberService {
 	@Autowired
 	private MemberRepository memberRepository;
 
+	/** The mongo template. */
 	@Autowired
 	private MongoTemplate mongoTemplate;
 
+	/** The Constant LOGGER. */
 	private static final Logger LOGGER = LoggerFactory.getLogger(MemberServiceImpl.class);
 
 	/**
@@ -201,6 +205,12 @@ public class MemberServiceImpl implements MemberService {
 		return false;
 	}
 
+	/**
+	 * Search members.
+	 *
+	 * @param criteria the criteria
+	 * @return the page
+	 */
 	@Override
 	public Page<Member> searchMembers(MemberCriteriaRequest criteria) {
 
@@ -228,5 +238,28 @@ public class MemberServiceImpl implements MemberService {
 		long count = mongoTemplate.count(Query.of(query).limit(-1).skip(-1), Member.class);
 
 		return new PageImpl<>(members, pageable, count);
+	}
+
+	/**
+	 * Promote to admin.
+	 *
+	 * @param id the id
+	 * @return the member
+	 */
+	@Override
+	public Member promoteToAdmin(String id) {
+		Member member = null;
+		Optional<Member> memberOptional = memberRepository.findById(id);
+		if (memberOptional.isPresent()) {
+			member = memberOptional.get();
+		} else {
+			throw new UserNotFoundException("User does not exit with id : " + id);
+		}
+
+		if (!member.getRoles().contains(UserRole.ADMIN)) {
+			member.setRoles(List.of(UserRole.ADMIN));
+			member = memberRepository.save(member);
+		}
+		return member;
 	}
 }
