@@ -51,7 +51,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
 		String jwt = null;
 		if (request.getRequestURI().startsWith("/actuator/health")
-				|| request.getRequestURI().startsWith("/api/register")
+				|| request.getRequestURI().startsWith("/api/member/register")
 				|| request.getRequestURI().startsWith("/api/login") || request.getRequestURI().startsWith("/api/token")
 				|| request.getRequestURI().startsWith("/swagger-ui")
 				|| request.getRequestURI().startsWith("/v3/api-docs")
