@@ -48,7 +48,7 @@ public class SecurityConfig {
 		http.csrf(csrf -> csrf.disable()).cors(cors -> cors.configurationSource(corsConfigurationSource()))
 				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 				.authorizeHttpRequests(auth -> auth
-						.requestMatchers("/api/login", "api/register", "/api/token", "/swagger-ui/**",
+						.requestMatchers("/api/login", "/api/member/register", "/api/token", "/swagger-ui/**",
 								"/v3/api-docs/**", "/actuator/health/**", "/api/version")
 						.permitAll().anyRequest().authenticated())
 				.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
