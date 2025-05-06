@@ -49,7 +49,7 @@ public class SecurityConfig {
 				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 				.authorizeHttpRequests(auth -> auth
 						.requestMatchers("/api/login", "api/register", "/api/token", "/swagger-ui/**",
-								"/v3/api-docs/**", "/actuator/health/**", "/api/version", "/api/member/me")
+								"/v3/api-docs/**", "/actuator/health/**", "/api/version")
 						.permitAll().anyRequest().authenticated())
 				.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
