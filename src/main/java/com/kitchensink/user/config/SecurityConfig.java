@@ -49,7 +49,7 @@ public class SecurityConfig {
 				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 				.authorizeHttpRequests(auth -> auth
 						.requestMatchers("/api/login", "api/register", "/api/token", "/swagger-ui/**",
-								"/v3/api-docs/**", "/actuator/health/**", "/api/version")
+								"/v3/api-docs/**", "/actuator/health/**", "/api/version", "/api/member/me")
 						.permitAll().anyRequest().authenticated())
 				.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
@@ -66,10 +66,15 @@ public class SecurityConfig {
 		CorsConfiguration config = new CorsConfiguration();
 		List<String> origins = allowedOrigins == null || allowedOrigins.isBlank() ? List.of("http://localhost:4200") // (optional)
 				: List.of(allowedOrigins.trim().split("\\s*,\\s*"));
-		config.setAllowedOrigins(origins);
+		config.setAllowedOriginPatterns(origins);
 		config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
 		config.setAllowedHeaders(List.of("*"));
 		config.setAllowCredentials(true);
+
+		// Logging CORS configuration
+		System.out.println("[CORS] Allowed Origins/Patterns: " + origins);
+		System.out.println("[CORS] Allow Credentials: " + config.getAllowCredentials());
+		System.out.println("[CORS] Allowed Methods: " + config.getAllowedMethods());
 
 		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
 		source.registerCorsConfiguration("/**", config);

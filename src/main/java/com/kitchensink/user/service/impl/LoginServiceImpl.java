@@ -49,7 +49,6 @@ public class LoginServiceImpl implements LoginService {
 					.authenticate(new UsernamePasswordAuthenticationToken(email, password));
 
 			return jwtTokenProvider.generateToken(authentication);
-
 		} catch (BadCredentialsException e) {
 			throw new AuthenticationException("Invalid email or password");
 		}

@@ -31,6 +31,7 @@ import org.springframework.stereotype.Service;
 
 import com.kitchensink.user.entity.Member;
 import com.kitchensink.user.enums.UserRole;
+import com.kitchensink.user.exception.AuthenticationException;
 import com.kitchensink.user.repository.MemberRepository;
 import com.kitchensink.user.requests.MemberCriteriaRequest;
 import com.kitchensink.user.service.MemberService;
@@ -98,8 +99,14 @@ public class MemberServiceImpl implements MemberService {
 	@Override
 	public Member getProfile() {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+		if (authentication == null || authentication.getPrincipal() == null) {
+			throw new AuthenticationException("User not authenticated");
+		}
+
 		String email = (String) authentication.getPrincipal();
-		return memberRepository.findByEmail(email).get();
+		return memberRepository.findByEmail(email)
+				.orElseThrow(() -> new AuthenticationException("Member not found with email: " + email));
 	}
 
 	/**

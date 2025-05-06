@@ -121,11 +121,7 @@ public class MemberController {
 			@ApiResponse(responseCode = "404", description = "Member not found") })
 	@GetMapping("/member/me")
 	public Member getProfile() {
-		Member member = memberService.getProfile();
-		if (member == null) {
-			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Member not found");
-		}
-		return member;
+		return memberService.getProfile();
 	}
 
 	/**

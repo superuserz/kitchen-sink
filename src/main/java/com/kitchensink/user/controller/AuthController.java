@@ -1,5 +1,6 @@
 package com.kitchensink.user.controller;
 
+import java.time.Duration;
 import java.util.Date;
 import java.util.List;
 
@@ -7,6 +8,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -27,6 +30,7 @@ import io.jsonwebtoken.security.Keys;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 
 /**
@@ -89,11 +93,17 @@ public class AuthController {
 	 * @return the response entity
 	 */
 	@PostMapping("/login")
-	public ResponseEntity<?> login(@RequestBody @Valid LoginRequest request) {
+	public ResponseEntity<?> login(@RequestBody @Valid LoginRequest request, HttpServletResponse response) {
 		try {
 			String jwtToken = loginService.login(request.getEmail(), request.getPassword());
 
-			return ResponseEntity.ok(new LoginResponse(jwtToken));
+			// Create secure cookie
+			ResponseCookie cookie = ResponseCookie.from("auth_token", jwtToken).httpOnly(true).path("/")
+					.maxAge(Duration.ofDays(1)).build();
+
+			response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+
+			return ResponseEntity.ok().build();
 		} catch (AuthenticationException e) {
 			LOGGER.error("Authentication Failure", e.getMessage());
 			throw e;

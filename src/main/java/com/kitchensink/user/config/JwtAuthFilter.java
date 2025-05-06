@@ -18,6 +18,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -48,6 +49,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
 
+		String jwt = null;
 		if (request.getRequestURI().startsWith("/actuator/health")
 				|| request.getRequestURI().startsWith("/api/register")
 				|| request.getRequestURI().startsWith("/api/login") || request.getRequestURI().startsWith("/api/token")
@@ -57,30 +59,43 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 			filterChain.doFilter(request, response);
 			return;
 		}
+
+		// Check Authorization header first
 		String authHeader = request.getHeader("Authorization");
 		if (authHeader != null && authHeader.startsWith("Bearer ")) {
-			String jwt = authHeader.substring(7);
-			try {
-				Claims claims = Jwts.parserBuilder().setSigningKey(Keys.hmacShaKeyFor(jwtSecret.getBytes())).build()
-						.parseClaimsJws(jwt).getBody();
-
-				List<String> roles = claims.get("roles", List.class);
-				List<GrantedAuthority> authorities = roles.stream().map(SimpleGrantedAuthority::new)
-
-						.collect(Collectors.toList());
-
-				String username = claims.getSubject();
-				if (username != null) {
-					UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(username, null,
-							authorities);
-					SecurityContextHolder.getContext().setAuthentication(auth);
+			jwt = authHeader.substring(7); // extract token
+		} else if (request.getCookies() != null) {
+			// Fallback to auth_token cookie
+			for (Cookie cookie : request.getCookies()) {
+				if ("auth_token".equals(cookie.getName())) {
+					jwt = cookie.getValue();
+					break;
 				}
-
-			} catch (JwtException e) {
-				response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid or expired token");
-				return;
 			}
-		} else {
+		}
+
+		if (jwt == null) {
+			response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Missing token");
+			return;
+		}
+
+		// Validate JWT
+		try {
+			Claims claims = Jwts.parserBuilder().setSigningKey(Keys.hmacShaKeyFor(jwtSecret.getBytes())).build()
+					.parseClaimsJws(jwt).getBody();
+
+			List<String> roles = claims.get("roles", List.class);
+			List<GrantedAuthority> authorities = roles.stream().map(SimpleGrantedAuthority::new)
+					.collect(Collectors.toList());
+
+			String username = claims.getSubject();
+			if (username != null) {
+				UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(username, null,
+						authorities);
+				SecurityContextHolder.getContext().setAuthentication(auth);
+			}
+
+		} catch (JwtException e) {
 			response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid or expired token");
 			return;
 		}

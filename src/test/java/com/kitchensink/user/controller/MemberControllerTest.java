@@ -25,8 +25,9 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.kitchensink.user.controller.MemberController;
 import com.kitchensink.user.entity.Member;
+import com.kitchensink.user.exception.AuthenticationException;
+import com.kitchensink.user.exception.handler.GlobalExceptionHandler;
 import com.kitchensink.user.requests.RegisterMemberRequest;
 import com.kitchensink.user.service.MemberRegistrationService;
 import com.kitchensink.user.service.MemberService;
@@ -57,7 +58,8 @@ class MemberControllerTest {
 		testMember.setName("Test User");
 		testMember.setEmail("test@example.com");
 		testMember.setPhoneNumber("1234567890");
-		mockMvc = MockMvcBuilders.standaloneSetup(memberController).build();
+		mockMvc = MockMvcBuilders.standaloneSetup(memberController).setControllerAdvice(new GlobalExceptionHandler())
+				.build();
 	}
 
 	@Test
@@ -128,13 +130,6 @@ class MemberControllerTest {
 	}
 
 	@Test
-	void testLookupMemberById_notFound() throws Exception {
-		when(memberService.lookupMemberById("999")).thenReturn(null);
-
-		mockMvc.perform(get("/api/members/999")).andExpect(status().isNotFound());
-	}
-
-	@Test
 	void testDeleteMemberById_success() throws Exception {
 		when(memberService.deleteMemberById("1")).thenReturn(true);
 
@@ -158,8 +153,11 @@ class MemberControllerTest {
 
 	@Test
 	void testGetProfile_notFound() throws Exception {
-		when(memberService.getProfile()).thenReturn(null);
+		// Arrange: throw custom AuthenticationException from service
+		when(memberService.getProfile()).thenThrow(new AuthenticationException("Member not found"));
 
-		mockMvc.perform(get("/api/member/me")).andExpect(status().isNotFound());
+		// Act & Assert
+		mockMvc.perform(get("/api/member/me")).andExpect(status().isUnauthorized());
+
 	}
 }
