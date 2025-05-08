@@ -2,7 +2,6 @@ package com.kitchensink.user.requests;
 
 import java.util.List;
 
-import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -31,12 +30,12 @@ public class RegisterMemberRequest {
 	/** The phone number. */
 	@NotNull
 	@Size(min = 10, max = 12)
-	@Digits(fraction = 0, integer = 12)
+	@Pattern(regexp = "^[6-9][0-9]{9}$", message = "Invalid mobile number")
 	private String phoneNumber;
 
 	/** The password. */
 	@NotNull
-	@Size(min = 6)
+	@Size(min = 7)
 	private String password;
 
 	/** The roles. */

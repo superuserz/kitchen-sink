@@ -79,7 +79,7 @@ class MemberControllerTest {
 		RegisterMemberRequest request = new RegisterMemberRequest();
 		request.setName("Test User");
 		request.setEmail("test@example.com");
-		request.setPhoneNumber("1234567890");
+		request.setPhoneNumber("8989898989");
 		request.setPassword("Secure@123");
 
 		when(memberRegistrationService.isEmailExists("test@example.com")).thenReturn(false);
@@ -95,7 +95,7 @@ class MemberControllerTest {
 		RegisterMemberRequest request = new RegisterMemberRequest();
 		request.setName("Test User");
 		request.setEmail("taken@example.com");
-		request.setPhoneNumber("1234567890");
+		request.setPhoneNumber("8989898989");
 		request.setPassword("Secure@123");
 
 		when(memberRegistrationService.isEmailExists("taken@example.com")).thenReturn(true);
